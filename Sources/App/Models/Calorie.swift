@@ -32,5 +32,6 @@ final class Calorie: Model, Content {
         self.foodName = foodName
         self.caloriesValue = caloriesValue
         self.userID = userID
+        self.dateAdded = dateAdded
     }
 }

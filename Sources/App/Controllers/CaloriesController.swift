@@ -6,7 +6,9 @@ struct CaloriesController: RouteCollection {
         let calories = routes.grouped("calories")
         calories.get(use: index)
         calories.post(use: create)
-        calories.delete(use: delete)
+        calories.group(":id") { calorie in
+            calorie.delete(use: delete)
+        }
         calories.put(use: update)
     }
     
@@ -20,17 +22,17 @@ struct CaloriesController: RouteCollection {
         return calorie.save(on: req.db).map { calorie }
     }
 
-    func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+    func delete(req: Request) throws -> EventLoopFuture<[Calorie]> {
         return Calorie.find(req.parameters.get("id"), on: req.db)
             .unwrap(or: Abort(.notFound))
             .flatMap { $0.delete(on: req.db) }
-            .transform(to: .ok)
+            .flatMap { Calorie.query(on: req.db).all() }
     }
     
     func update(req: Request) throws -> EventLoopFuture<Calorie> {
         let item = try req.content.decode(Calorie.self)
         
-        return Calorie.find(req.parameters.get("id"), on: req.db)
+        return Calorie.find(item.id, on: req.db)
             .unwrap(or: Abort(.notFound))
             .flatMap { calorie in
                 calorie.foodName = item.foodName
