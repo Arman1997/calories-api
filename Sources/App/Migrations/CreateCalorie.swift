@@ -8,7 +8,7 @@ struct CreateCalorie: Migration {
             .field("foodName", .string, .required)
             .field("caloriesValue", .int, .required)
             .field("userID", .string, .required)
-            .field("dateAdded", .date, .required)
+            .field("dateAdded", .string, .required)
             .create()
     }
 

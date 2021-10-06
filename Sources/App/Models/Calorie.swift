@@ -17,7 +17,7 @@ final class Calorie: Model, Content {
     @Field(key: "userID")
     var userID: String
     
-    @Timestamp(key: "dateAdded", on: .create)
+    @Timestamp(key: "dateAdded", on: .create, format: .iso8601)
     var dateAdded: Date?
 
     init() { }
