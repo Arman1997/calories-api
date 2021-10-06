@@ -4,14 +4,18 @@ import Vapor
 
 struct AuthController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let calories = routes.grouped("tokens")
-        calories.get(use: index)
+        let tokens = routes.grouped("tokens")
+        tokens.group(":token") { token in
+            token.post(use: create)
+        }
     }
     
-    func index(req: Request) throws -> EventLoopFuture<User> {
-        return AuthData.find(req.parameters.get("token"), on: req.db)
+    func create(req: Request) throws -> EventLoopFuture<User> {
+        let authData = AuthData.query(on: req.db).filter(\.$token == req.parameters.get("token") ?? "").all(\.$userID)
+
+        return authData
+            .map { $0.first }
             .unwrap(or: Abort(.notFound))
-            .map { $0.userID }
             .flatMap { User.find($0, on: req.db).unwrap(or: Abort(.notFound)) }
     }
 }
